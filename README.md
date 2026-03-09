@@ -68,7 +68,7 @@ Tasks are defined in [.vscode/tasks.json](.vscode/tasks.json):
 
 ## Source Feeds
 
-Default sources are configured in [FeedService.cs](Newsfeed/Services/FeedService.cs):
+Initial sources are configured in [FeedService.cs](Newsfeed/Services/FeedService.cs):
 
 - Al Jazeera Live (homepage liveblog discovery + AMP updates)
 - BBC World RSS
@@ -76,6 +76,8 @@ Default sources are configured in [FeedService.cs](Newsfeed/Services/FeedService
 - Bloomberg Politics RSS
 - Bloomberg Markets RSS
 - WSJ World RSS
+
+These are extendable by adding new feed URLs and parsing logic as needed.
 
 ## Project Structure
 
