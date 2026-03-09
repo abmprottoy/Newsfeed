@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="Newsfeed.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    RequestedTheme="Dark">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Color x:Key="TickerBaseColor">#FF0D1117</Color>
+            <Color x:Key="TickerAccentColor">#FFD94F4F</Color>
+            <Color x:Key="TickerMutedColor">#FF8B96A7</Color>
+
+            <SolidColorBrush x:Key="TickerBaseBrush" Color="{StaticResource TickerBaseColor}" />
+            <SolidColorBrush x:Key="TickerAccentBrush" Color="{StaticResource TickerAccentColor}" />
+            <SolidColorBrush x:Key="TickerMutedBrush" Color="{StaticResource TickerMutedColor}" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
