@@ -1,48 +1,52 @@
 # Newsfeed
 
-Native WinUI desktop ticker for monitoring live headlines near the bottom of the screen.
+WinUI 3 desktop ticker app for tracking live world headlines from multiple sources.
 
-## What is included
+## Features
 
-- Unpackaged WinUI 3 desktop app shell.
-- Bottom-docked window layout sized for a TV-style ticker.
-- Two ticker modes:
-  - infinite horizontal scroll
-  - vertical slide-up rotation
-- Live source polling with focus-term filtering for Iran-related coverage.
-- Offline/mock fallback headlines so the shell still runs when feeds are blocked.
+- Unpackaged WinUI 3 app shell (`net9.0-windows10.0.19041.0`).
+- Bottom-docked ticker-style layout for continuous monitoring.
+- Two display modes:
+  - continuous horizontal scroll
+  - vertical slide rotation
+- Multi-source polling with relevance filtering based on focus terms.
+- Auto refresh every 2 minutes.
+- Built-in fallback headlines when live feeds fail.
 
-## Current sources
+## Sources
 
-- Al Jazeera homepage headline scrape
+Current default sources are defined in [FeedService.cs](Newsfeed/Services/FeedService.cs):
+
+- Al Jazeera Live (homepage liveblog discovery + AMP updates)
 - BBC World RSS
 - The Guardian World RSS
+- Bloomberg Politics RSS
+- Bloomberg Markets RSS
+- WSJ World RSS
 
-The focus terms are currently hardcoded in [MainViewModel.cs](/E:/Codegraphs/Newsfeed/Newsfeed/ViewModels/MainViewModel.cs) for Iran monitoring.
+## Requirements
+
+- Windows 10/11
+- .NET 9 SDK
 
 ## Run
 
-1. Restore packages:
-
 ```powershell
 dotnet restore .\Newsfeed\Newsfeed.csproj
+dotnet build .\Newsfeed\Newsfeed.csproj -p:Platform=x64
+dotnet run --project .\Newsfeed\Newsfeed.csproj -p:Platform=x64
 ```
 
-2. Build:
+VS Code tasks are available in [.vscode/tasks.json](.vscode/tasks.json):
 
-```powershell
-dotnet build .\Newsfeed\Newsfeed.csproj
-```
+- `restore`
+- `build`
+- `run`
 
-3. Run from Visual Studio or with `dotnet run --project .\Newsfeed\Newsfeed.csproj`.
+## Customize
 
-There is also a workspace run action in [.vscode/tasks.json](/E:/Codegraphs/Newsfeed/.vscode/tasks.json):
-
-- `run` launches the WinUI app from the repo root.
-- `build` and `restore` are available separately if you want them.
-
-## Extend
-
-- Add or change sources in [FeedService.cs](/E:/Codegraphs/Newsfeed/Newsfeed/Services/FeedService.cs).
-- Adjust watch keywords in [MainViewModel.cs](/E:/Codegraphs/Newsfeed/Newsfeed/ViewModels/MainViewModel.cs).
-- Add more ticker behaviors by following the pattern used in [ContinuousTickerControl.xaml.cs](/E:/Codegraphs/Newsfeed/Newsfeed/Controls/ContinuousTickerControl.xaml.cs) and [VerticalTickerControl.xaml.cs](/E:/Codegraphs/Newsfeed/Newsfeed/Controls/VerticalTickerControl.xaml.cs).
+- Change focus terms in [MainViewModel.cs](Newsfeed/ViewModels/MainViewModel.cs).
+- Add or remove feeds in [FeedService.cs](Newsfeed/Services/FeedService.cs).
+- Update ticker behavior in:
+  - [ContinuousTickerControl.xaml.cs](Newsfeed/Controls/ContinuousTickerControl.xaml.cs)
+  - [VerticalTickerControl.xaml.cs](Newsfeed/Controls/VerticalTickerControl.xaml.cs)
