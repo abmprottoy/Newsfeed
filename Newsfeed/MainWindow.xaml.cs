@@ -1,9 +1,11 @@
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Newsfeed.Models;
+using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
+using Newsfeed.Pages;
 using Newsfeed.ViewModels;
-using System.Diagnostics;
 using System.Text.Json;
 using Windows.Graphics;
 using Windows.UI;
@@ -13,17 +15,18 @@ namespace Newsfeed;
 
 public sealed partial class MainWindow : Window
 {
-    private const int DefaultWindowHeight = 320;
-    private const int MinWindowHeight = 300;
-    private const int MinWindowWidth = 1100;
-    private const int TickerMargin = 12;
-    private const int DefaultTickerWidth = 1400;
+    private const int DefaultWindowHeight = 560;
+    private const int DefaultWindowWidth = 1240;
+    private const int MinWindowHeight = 280;
+    private const int MinWindowWidth = 980;
+    private const int WindowMargin = 20;
     private static readonly JsonSerializerOptions WindowStateJsonOptions = new(JsonSerializerDefaults.Web);
     private bool _isInitialized;
     private bool _isPlaced;
     private bool _isChromeInitialized;
     private bool _isApplyingMinimumSize;
     private AppWindow? _appWindow;
+    private ShellPage _currentPage = ShellPage.Home;
 
     public MainViewModel ViewModel { get; } = new();
 
@@ -33,8 +36,10 @@ public sealed partial class MainWindow : Window
 
         Activated += MainWindow_Activated;
         Closed += MainWindow_Closed;
+        ContentFrame.Navigated += ContentFrame_Navigated;
 
-        UpdateModeVisuals();
+        RootNavigationView.SelectedItem = HomeNavigationItem;
+        NavigateToPage(ShellPage.Home, useAnimation: false);
     }
 
     private async void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -60,38 +65,105 @@ public sealed partial class MainWindow : Window
         await ViewModel.InitializeAsync();
     }
 
-    private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+    private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        RefreshButton.IsEnabled = false;
-        try
+        var targetPage = args.IsSettingsSelected ? ShellPage.Settings : ShellPage.Home;
+        NavigateToPage(targetPage, useAnimation: true);
+    }
+
+    private void RootNavigationView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+    {
+        NavigateBack();
+    }
+
+    private void AppTitleBar_BackRequested(TitleBar sender, object args)
+    {
+        NavigateBack();
+    }
+
+    private void RootLayout_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        var properties = e.GetCurrentPoint(RootLayout).Properties;
+
+        if (properties.IsXButton1Pressed)
         {
-            await ViewModel.RefreshAsync();
+            NavigateBack();
+            e.Handled = true;
+            return;
         }
-        finally
+
+        if (properties.IsXButton2Pressed)
         {
-            RefreshButton.IsEnabled = true;
+            NavigateForward();
+            e.Handled = true;
         }
     }
 
-    private void ScrollModeButton_Click(object sender, RoutedEventArgs e)
+    private void NavigateToPage(ShellPage targetPage, bool useAnimation)
     {
-        ViewModel.SelectedMode = TickerMode.ContinuousScroll;
-        UpdateModeVisuals();
+        if (ContentFrame.Content is not null && targetPage == _currentPage)
+        {
+            return;
+        }
+
+        var targetType = targetPage switch
+        {
+            ShellPage.Settings => typeof(SettingsPage),
+            _ => typeof(HomePage)
+        };
+
+        NavigationTransitionInfo transition = useAnimation
+            ? new SlideNavigationTransitionInfo
+            {
+                Effect = targetPage > _currentPage
+                    ? SlideNavigationTransitionEffect.FromRight
+                    : SlideNavigationTransitionEffect.FromLeft
+            }
+            : new SuppressNavigationTransitionInfo();
+
+        ViewModel.SetSettingsViewActive(targetPage == ShellPage.Settings);
+        ContentFrame.Navigate(targetType, ViewModel, transition);
     }
 
-    private void StackModeButton_Click(object sender, RoutedEventArgs e)
+    private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
-        ViewModel.SelectedMode = TickerMode.VerticalSlide;
-        UpdateModeVisuals();
+        _currentPage = GetShellPage(e.SourcePageType);
+        ViewModel.SetSettingsViewActive(_currentPage == ShellPage.Settings);
+        RootNavigationView.SelectedItem = _currentPage == ShellPage.Settings
+            ? RootNavigationView.SettingsItem
+            : HomeNavigationItem;
+        RootNavigationView.IsBackEnabled = ContentFrame.CanGoBack;
+        AppTitleBar.IsBackButtonEnabled = ContentFrame.CanGoBack;
     }
 
-    private void UpdateModeVisuals()
+    private void NavigateBack()
     {
-        var isScroll = ViewModel.SelectedMode == TickerMode.ContinuousScroll;
-        ContinuousTicker.Visibility = isScroll ? Visibility.Visible : Visibility.Collapsed;
-        VerticalTicker.Visibility = isScroll ? Visibility.Collapsed : Visibility.Visible;
-        ScrollModeButton.Style = (Style)Application.Current.Resources[isScroll ? "AccentButtonStyle" : "DefaultButtonStyle"];
-        StackModeButton.Style = (Style)Application.Current.Resources[isScroll ? "DefaultButtonStyle" : "AccentButtonStyle"];
+        if (!ContentFrame.CanGoBack)
+        {
+            return;
+        }
+
+        ContentFrame.GoBack(new SlideNavigationTransitionInfo
+        {
+            Effect = SlideNavigationTransitionEffect.FromLeft
+        });
+    }
+
+    private void NavigateForward()
+    {
+        if (!ContentFrame.CanGoForward)
+        {
+            return;
+        }
+
+        ContentFrame.GoForward();
+    }
+
+    private static ShellPage GetShellPage(Type? pageType)
+    {
+        return pageType == typeof(SettingsPage)
+            ? ShellPage.Settings
+            : ShellPage.Home;
     }
 
     private void ConfigureWindow()
@@ -114,12 +186,12 @@ public sealed partial class MainWindow : Window
         var displayArea = DisplayArea.GetFromWindowId(_appWindow.Id, DisplayAreaFallback.Primary);
         var workArea = displayArea.WorkArea;
         var state = LoadWindowState();
-        var maxWidth = Math.Max(640, workArea.Width - (TickerMargin * 2));
-        var maxHeight = Math.Max(240, workArea.Height - (TickerMargin * 2));
-        var width = Math.Clamp(state?.Width ?? DefaultTickerWidth, Math.Min(MinWindowWidth, maxWidth), maxWidth);
+        var maxWidth = Math.Max(960, workArea.Width - (WindowMargin * 2));
+        var maxHeight = Math.Max(560, workArea.Height - (WindowMargin * 2));
+        var width = Math.Clamp(state?.Width ?? DefaultWindowWidth, Math.Min(MinWindowWidth, maxWidth), maxWidth);
         var height = Math.Clamp(state?.Height ?? DefaultWindowHeight, Math.Min(MinWindowHeight, maxHeight), maxHeight);
-        var defaultX = workArea.X + Math.Max(TickerMargin, (workArea.Width - width) / 2);
-        var defaultY = workArea.Y + workArea.Height - height - TickerMargin;
+        var defaultX = workArea.X + Math.Max(WindowMargin, (workArea.Width - width) / 2);
+        var defaultY = workArea.Y + workArea.Height - height - WindowMargin;
         var x = state?.X ?? defaultX;
         var y = state?.Y ?? defaultY;
 
@@ -134,18 +206,6 @@ public sealed partial class MainWindow : Window
     {
         SaveWindowState();
         ViewModel.Dispose();
-    }
-
-    private void Ticker_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        var headline = ViewModel.SelectedMode == TickerMode.ContinuousScroll
-            ? ContinuousTicker.ActiveHeadline
-            : VerticalTicker.ActiveHeadline;
-
-        if (headline is not null)
-        {
-            OpenHeadline(headline);
-        }
     }
 
     private void InitializeWindowChrome()
@@ -164,7 +224,7 @@ public sealed partial class MainWindow : Window
 
         var titleBar = _appWindow.TitleBar;
         titleBar.ExtendsContentIntoTitleBar = true;
-        titleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+        titleBar.PreferredHeightOption = TitleBarHeightOption.Standard;
         titleBar.ButtonBackgroundColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
         titleBar.ButtonInactiveBackgroundColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
         titleBar.ButtonForegroundColor = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
@@ -212,15 +272,6 @@ public sealed partial class MainWindow : Window
         {
             _isApplyingMinimumSize = false;
         }
-    }
-
-    private static void OpenHeadline(NewsHeadline headline)
-    {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = headline.Url,
-            UseShellExecute = true
-        });
     }
 
     private static string GetWindowStatePath()
@@ -273,4 +324,10 @@ public sealed partial class MainWindow : Window
     }
 
     private sealed record WindowState(int X, int Y, int Width, int Height);
+
+    private enum ShellPage
+    {
+        Home = 0,
+        Settings = 1
+    }
 }

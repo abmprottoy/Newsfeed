@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Newsfeed.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    Background="Transparent"
+    mc:Ignorable="d">
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition />
+        </TransitionCollection>
+    </Page.Transitions>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel
+            Padding="32,24,32,32"
+            Spacing="24">
+            <TextBlock
+                Style="{ThemeResource TitleTextBlockStyle}"
+                Text="Settings" />
+
+            <Border Style="{StaticResource SettingsCardBorderStyle}">
+                <StackPanel Spacing="16">
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Style="{ThemeResource SubtitleTextBlockStyle}"
+                            Text="Focus topics" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Add or remove the tags that steer headline filtering."
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <toolkit:TokenizingTextBox
+                        x:Name="FocusTermsBox"
+                        ItemsSource="{Binding FocusTerms}"
+                        SuggestedItemsSource="{Binding SuggestedFocusTerms}"
+                        MaximumTokens="20"
+                        PlaceholderText="Add a country, city, company, or issue"
+                        TokenItemAdding="FocusTermsBox_TokenItemAdding" />
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource SettingsCardBorderStyle}">
+                    <StackPanel Spacing="14">
+                        <StackPanel Spacing="4">
+                            <TextBlock
+                                Style="{ThemeResource SubtitleTextBlockStyle}"
+                                Text="Ticker mode" />
+                            <TextBlock
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="Choose the motion style used on the live page."
+                                TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <ComboBox
+                            DisplayMemberPath="Label"
+                            ItemsSource="{Binding ModeOptions}"
+                            SelectedItem="{Binding SelectedModeOption, Mode=TwoWay}" />
+
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{Binding SelectedModeDescription}"
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Grid.Column="1"
+                    Style="{StaticResource SettingsCardBorderStyle}">
+                    <StackPanel Spacing="14">
+                        <StackPanel Spacing="4">
+                            <TextBlock
+                                Style="{ThemeResource SubtitleTextBlockStyle}"
+                                Text="Refresh cadence" />
+                            <TextBlock
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="Balance freshness and noise with a simple polling interval."
+                                TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <ComboBox
+                            DisplayMemberPath="Label"
+                            ItemsSource="{Binding RefreshIntervalOptions}"
+                            SelectedItem="{Binding SelectedRefreshIntervalOption, Mode=TwoWay}" />
+
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{Binding RefreshCadenceLine}"
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource SettingsCardBorderStyle}">
+                <StackPanel Spacing="14">
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Style="{ThemeResource SubtitleTextBlockStyle}"
+                            Text="Window behavior" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Keep the ticker ready for lower-screen docking with a tighter, ticker-first layout."
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <ToggleSwitch
+                        Header="Prefer compact ticker layout"
+                        IsOn="{Binding PreferCompactTickerLayout, Mode=TwoWay}"
+                        OffContent="Off"
+                        OnContent="On" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCardBorderStyle}">
+                <StackPanel Spacing="14">
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Style="{ThemeResource SubtitleTextBlockStyle}"
+                            Text="Sources" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="These live feeds back the ticker right now."
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding SourceNames}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Margin="0,0,0,8"
+                                    Padding="14,12"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                    CornerRadius="6">
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        Text="{Binding}" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

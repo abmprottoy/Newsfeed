@@ -17,6 +17,14 @@
             <SolidColorBrush x:Key="TickerBaseBrush" Color="{StaticResource TickerBaseColor}" />
             <SolidColorBrush x:Key="TickerAccentBrush" Color="{StaticResource TickerAccentColor}" />
             <SolidColorBrush x:Key="TickerMutedBrush" Color="{StaticResource TickerMutedColor}" />
+
+            <Style x:Key="SettingsCardBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorSecondaryBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="24" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
