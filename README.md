@@ -7,6 +7,10 @@
 
 WinUI 3 desktop news ticker for tracking live world headlines in a compact, dockable Windows shell.
 
+## Release
+
+Download the current release from [Newsfeed v0.1.0](https://github.com/abmprottoy/Newsfeed/releases/tag/v0.1.0).
+
 ## Demo
 
 https://github.com/user-attachments/assets/02905eec-c7be-470f-8e7b-fcb108b45f6d
@@ -52,7 +56,7 @@ dotnet run --project .\Newsfeed\Newsfeed.csproj -p:Platform=x64
 
 ## Publish A Release Build
 
-To produce a self-contained unpackaged build for distribution:
+To produce a self-contained unpackaged build:
 
 ```powershell
 dotnet publish .\Newsfeed\Newsfeed.csproj `
@@ -70,7 +74,7 @@ That produces a runnable folder under:
 Newsfeed\bin\x64\Release\net9.0-windows10.0.19041.0\win-x64\publish\
 ```
 
-You can zip that folder and attach it to a GitHub Release for end users.
+The current published release is available at [Newsfeed v0.1.0](https://github.com/abmprottoy/Newsfeed/releases/tag/v0.1.0).
 
 ## Source Feeds
 
