@@ -5,33 +5,25 @@
 [![Last Commit](https://img.shields.io/github/last-commit/abmprottoy/Newsfeed)](https://github.com/abmprottoy/Newsfeed/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/abmprottoy/Newsfeed)](https://github.com/abmprottoy/Newsfeed/stargazers)
 
-WinUI 3 desktop ticker app for tracking live world headlines from multiple sources.
+WinUI 3 desktop news ticker for tracking live world headlines in a compact, dockable Windows shell.
 
 ## Demo
 
-https://github.com/user-attachments/assets/4f4c72ed-906c-4eaa-8e01-9b0d9f20e725
+https://github.com/user-attachments/assets/02905eec-c7be-470f-8e7b-fcb108b45f6d
 
 If the embedded player does not render on your device, open the direct link above.
 
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Quick Start](#quick-start)
-- [Source Feeds](#source-feeds)
-- [Project Structure](#project-structure)
-- [Customization](#customization)
-
 ## Features
 
-- Unpackaged WinUI 3 app shell (`net9.0-windows10.0.19041.0`)
-- Bottom-docked ticker-style layout for continuous monitoring
-- Two display modes:
+- Unpackaged WinUI 3 desktop app targeting `net9.0-windows10.0.19041.0`
+- Native-feeling shell with custom title bar, back navigation, and settings page
+- Two ticker modes:
   - Continuous horizontal scroll
   - Vertical slide rotation
-- Multi-source polling with focus-term relevance filtering
-- Auto refresh every 2 minutes
-- Built-in fallback headlines when live feeds fail
+- Editable focus terms with inline tokens using `CommunityToolkit.WinUI.Controls.TokenizingTextBox`
+- Compact ticker mode for docked or lower-screen monitoring
+- Multi-source polling with relevance filtering and fallback headlines
+- Configurable refresh cadence and persisted local settings
 
 ## Tech Stack
 
@@ -50,7 +42,7 @@ If the embedded player does not render on your device, open the direct link abov
 - Windows 10/11
 - .NET 9 SDK
 
-### Run
+### Run From Source
 
 ```powershell
 dotnet restore .\Newsfeed\Newsfeed.csproj
@@ -58,26 +50,38 @@ dotnet build .\Newsfeed\Newsfeed.csproj -p:Platform=x64
 dotnet run --project .\Newsfeed\Newsfeed.csproj -p:Platform=x64
 ```
 
-### VS Code Tasks
+## Publish A Release Build
 
-Tasks are defined in [.vscode/tasks.json](.vscode/tasks.json):
+To produce a self-contained unpackaged build for distribution:
 
-- `restore`
-- `build`
-- `run`
+```powershell
+dotnet publish .\Newsfeed\Newsfeed.csproj `
+  -c Release `
+  -f net9.0-windows10.0.19041.0 `
+  -p:RuntimeIdentifierOverride=win-x64 `
+  -p:WindowsPackageType=None `
+  -p:WindowsAppSDKSelfContained=true `
+  --self-contained true
+```
+
+That produces a runnable folder under:
+
+```text
+Newsfeed\bin\x64\Release\net9.0-windows10.0.19041.0\win-x64\publish\
+```
+
+You can zip that folder and attach it to a GitHub Release for end users.
 
 ## Source Feeds
 
 Initial sources are configured in [FeedService.cs](Newsfeed/Services/FeedService.cs):
 
-- Al Jazeera Live (homepage liveblog discovery + AMP updates)
+- Al Jazeera Live
 - BBC World RSS
 - The Guardian World RSS
 - Bloomberg Politics RSS
 - Bloomberg Markets RSS
 - WSJ World RSS
-
-These are extendable by adding new feed URLs and parsing logic as needed.
 
 ## Project Structure
 
@@ -85,6 +89,7 @@ These are extendable by adding new feed URLs and parsing logic as needed.
 Newsfeed/
 ├─ Controls/
 ├─ Models/
+├─ Pages/
 ├─ Services/
 ├─ ViewModels/
 ├─ App.xaml
@@ -94,8 +99,12 @@ Newsfeed/
 
 ## Customization
 
-- Change focus terms in [MainViewModel.cs](Newsfeed/ViewModels/MainViewModel.cs)
+- Change focus terms and persisted defaults in [MainViewModel.cs](Newsfeed/ViewModels/MainViewModel.cs)
 - Add or remove feeds in [FeedService.cs](Newsfeed/Services/FeedService.cs)
 - Update ticker behavior in:
   - [ContinuousTickerControl.xaml.cs](Newsfeed/Controls/ContinuousTickerControl.xaml.cs)
   - [VerticalTickerControl.xaml.cs](Newsfeed/Controls/VerticalTickerControl.xaml.cs)
+- Adjust the shell and settings experience in:
+  - [MainWindow.xaml](Newsfeed/MainWindow.xaml)
+  - [HomePage.xaml](Newsfeed/Pages/HomePage.xaml)
+  - [SettingsPage.xaml](Newsfeed/Pages/SettingsPage.xaml)
