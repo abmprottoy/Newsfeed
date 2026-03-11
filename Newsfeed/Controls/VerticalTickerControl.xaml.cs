@@ -107,7 +107,7 @@ public sealed partial class VerticalTickerControl : UserControl
         if (Headlines is null || Headlines.Count == 0)
         {
             ActiveHeadline = null;
-            CurrentText.Text = "Waiting for headlines...";
+            CurrentText.Text = "Waiting for the news...";
             IncomingText.Text = string.Empty;
             _rotationTimer.Stop();
             return;

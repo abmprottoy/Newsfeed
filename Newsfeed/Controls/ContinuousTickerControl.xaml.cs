@@ -103,8 +103,8 @@ public sealed partial class ContinuousTickerControl : UserControl
         {
             _displayHeadlines = [];
             ActiveHeadline = null;
-            TickerText.Text = "Loading live headlines...";
-            TickerCloneText.Text = TickerText.Text;
+            TickerText.Text = "Waiting for the news...";
+            TickerCloneText.Text = string.Empty;
             return;
         }
 
